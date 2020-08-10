@@ -1,0 +1,43 @@
+html, body {
+    background-color: #282a36;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+nav {
+    background-color: #44475a;
+    flex-shrink: 0;
+}
+
+.content {
+    flex: 1 0 auto;
+}
+
+.banner {
+    background-color: #44475a;
+    padding: 16rem 0;
+}
+
+footer {
+    background-color: #44475a;
+    flex-shrink: 0;
+}
+
+.center {
+    justify-content: center;
+}
+
+.text-center {
+    text-align: center;
+}
+
+/* https://purecss.io/grids/#using-grids-with-your-font-family */
+html, button, input, select, textarea, .pure-g [class *= "pure-u"] {
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+}
+
+h1, h2, h3, h4, p {
+    color: #f8f8f2;
+    margin: 0.75rem;
+}
