@@ -7,7 +7,10 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Request;
 
 use App\Entity\Board;
-use App\Form\NewBoardType;
+use App\Entity\Topic;
+use App\Entity\Reply;
+
+use App\Form\ReplyType;
 
 class BoardController extends AbstractController
 {
@@ -32,6 +35,124 @@ class BoardController extends AbstractController
         return $this->render("board/index.html.twig", [
             "board" => $board,
             "topics" => $topics
+        ]);
+    }
+
+    /**
+     * @Route("/board/{name}/topic/{id}", name="topic")
+     */
+    public function topic($name, $id)
+    {
+        $board = $this->getDoctrine()
+            ->getRepository(Board::class)
+            ->findOneBy(["name" => $name]);
+    
+        if (!$board) 
+        {
+            throw $this->createNotFoundException();
+        }
+        else
+        {
+            $topic = $this->getDoctrine()
+                ->getRepository(Topic::class)
+                ->find($id);
+
+            if (!$topic) 
+            {
+                throw $this->createNotFoundException();
+            }
+            else
+            {
+                $replies = $topic->getReplies();
+            }
+        }
+
+        return $this->render("board/topic.html.twig", [
+            "board" => $board,
+            "topic" => $topic,
+            "replies" => $replies
+        ]);
+    }
+
+    /**
+     * @Route("/board/{name}/new-topic", name="new_topic")
+     */
+    public function newTopic(Request $request, $name)
+    {
+        $board = $this->getDoctrine()
+            ->getRepository(Board::class)
+            ->findOneBy(["name" => $name]);
+
+        $reply = new Reply();
+
+        $form = $this->createForm(ReplyType::class, $reply);
+
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid())
+        {
+            $topic = new Topic();
+            $topic->setBoard($board);
+            $topic->setTsCreated(new \DateTime());
+    
+            $reply->setTopic($topic);
+            $reply->setTsCreated(new \DateTime());
+
+            $manager = $this->getDoctrine()->getManager();
+            $manager->persist($topic);
+            $manager->persist($reply);
+            $manager->flush();
+    
+            return $this->redirectToRoute("topic", [
+                "name" => $name,
+                "id" => $topic->getId()
+            ]);
+        }
+
+        return $this->render("board/new_topic.html.twig", [
+            "board" => $board,
+            "new_topic" => $form->createView()
+        ]);
+    }
+
+    /**
+     * @Route("/board/{name}/topic/{id}/new-reply", name="new_reply")
+     */
+    public function newReply(Request $request, $name, $id)
+    {
+        $board = $this->getDoctrine()
+            ->getRepository(Board::class)
+            ->findOneBy(["name" => $name]);
+
+        $topic = $this->getDoctrine()
+            ->getRepository(Topic::class)
+            ->find($id);
+
+        $reply = new Reply();
+        $reply->setTopic($topic);
+
+        $form = $this->createForm(ReplyType::class, $reply);
+
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid())
+        {
+            $reply->setTsCreated(new \DateTime());
+
+            $manager = $this->getDoctrine()->getManager();
+            $manager->persist($reply);
+            $manager->flush();
+    
+            return $this->redirectToRoute("topic", [
+                "name" => $name,
+                "id" => $topic->getId()
+            ]);
+        }
+
+        return $this->render("board/new_reply.html.twig", [
+            "board" => $board,
+            "topic" => $topic,
+            "new_reply" => $form->createView()
         ]);
     }
 

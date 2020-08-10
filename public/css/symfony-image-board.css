@@ -41,3 +41,8 @@ h1, h2, h3, h4, p {
     color: #f8f8f2;
     margin: 0.75rem;
 }
+
+a {
+    color: #8be9fd;
+    text-decoration: none;
+}

@@ -6,9 +6,9 @@
 
 <div class="content">
     <div class="pure-g">
-        <div class="pure-u-1-1">
+        <div class="pure-u">
         {% for board in boards %}
-            <a href="{{path("board", {name: board.name})}}">{{board.name}}</a>
+            <p><a href="{{path("board", {name: board.name})}}">{{board.name}}</a></p>
         {% endfor %}
         </div>
     </div>
