@@ -37,12 +37,12 @@ html, button, input, select, textarea, .pure-g [class *= "pure-u"] {
     font-family: Verdana, Geneva, Tahoma, sans-serif;
 }
 
-h1, h2, h3, h4, p {
+h1, h2, h3, h4, p, label {
     color: #f8f8f2;
     margin: 0.75rem;
 }
 
 a {
     color: #8be9fd;
-    text-decoration: none;
+    text-decoration-line: underline;
 }

@@ -111,7 +111,7 @@ class BoardController extends AbstractController
 
         return $this->render("board/new_topic.html.twig", [
             "board" => $board,
-            "new_topic" => $form->createView()
+            "form" => $form->createView()
         ]);
     }
 
@@ -152,7 +152,7 @@ class BoardController extends AbstractController
         return $this->render("board/new_reply.html.twig", [
             "board" => $board,
             "topic" => $topic,
-            "new_reply" => $form->createView()
+            "form" => $form->createView()
         ]);
     }
 

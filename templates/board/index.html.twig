@@ -6,16 +6,21 @@
 
 <div class="content">
     <div class="pure-g">
+        <div class="pure-u-1-1">
+            <h1>/{{board.name}}/</h1>
+        </div>
+    </div>
+    <div class="pure-g">
         <div class="pure-u-1-1 text-center">
             <p><a href="{{path("new_topic", {name: board.name})}}">New Topic</a></p>
         </div>
     </div>
     <div class="pure-g">
-    {% for topic in topics %}
-        <div class="pure-u">
-            <p><a href="{{path("topic", {name: board.name, id: topic.id})}}">{{topic.replies.first.content}}</a></p>
-        </div>
-    {% endfor %}
+        {% for topic in topics %}
+            <div class="pure-u">
+                <p><a href="{{path("topic", {name: board.name, id: topic.id})}}">{{topic.replies.first.content}}</a></p>
+            </div>
+        {% endfor %}
     </div>
 </div>
 
