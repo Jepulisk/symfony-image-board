@@ -29,6 +29,12 @@ class Topic
      */
     private $replies;
 
+    /**
+     * @ORM\ManyToOne(targetEntity=Board::class, inversedBy="topics")
+     * @ORM\JoinColumn(nullable=false)
+     */
+    private $board;
+
     public function __construct()
     {
         $this->replies = new ArrayCollection();
@@ -78,6 +84,18 @@ class Topic
                 $reply->setTopic(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getBoard(): ?Board
+    {
+        return $this->board;
+    }
+
+    public function setBoard(?Board $board): self
+    {
+        $this->board = $board;
 
         return $this;
     }
