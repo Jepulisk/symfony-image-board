@@ -116,9 +116,9 @@ class BoardController extends AbstractController
     }
 
     /**
-     * @Route("/board/{name}/topic/{id}/new-reply", name="new_reply")
+     * @Route("/board/{name}/topic/{topic_id}/new-reply/{reply_id}", name="new_reply")
      */
-    public function newReply(Request $request, $name, $id)
+    public function newReply(Request $request, $name, $topic_id, $reply_id = null)
     {
         $board = $this->getDoctrine()
             ->getRepository(Board::class)
@@ -126,10 +126,19 @@ class BoardController extends AbstractController
 
         $topic = $this->getDoctrine()
             ->getRepository(Topic::class)
-            ->find($id);
+            ->find($topic_id);
 
         $reply = new Reply();
         $reply->setTopic($topic);
+
+        if ($reply_id)
+        {
+            $reply_to = $this->getDoctrine()
+                ->getRepository(Reply::class)
+                ->find($reply_id);
+
+            $reply->addReplyTo($reply_to);
+        }
 
         $form = $this->createForm(ReplyType::class, $reply);
 
