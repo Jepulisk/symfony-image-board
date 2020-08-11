@@ -47,7 +47,12 @@ a {
     text-decoration-line: underline;
 }
 
+.topic {
+    background-color: #44475a;
+    margin: 0 0.75rem 0.75rem 0.75rem;
+}
+
 .reply {
-    background-color: brown;
+    background-color: #44475a;
     margin: 0 0.75rem 0.75rem 0.75rem;
 }

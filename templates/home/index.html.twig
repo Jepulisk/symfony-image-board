@@ -1,17 +1,26 @@
 {% extends "base.html.twig" %}
 
-{% block title %}Hello HomeController!{% endblock %}
+{% block title %}Boards{% endblock %}
 
 {% block body %}
 
 <div class="content">
     <div class="pure-g">
-        <div class="pure-u">
+        <div class="pure-u-1">
             <h1>Boards</h1>
-            {% for board in boards %}
-                <p><a href="{{path("board", {name: board.name})}}">/{{board.name}}/</a></p>
-            {% endfor %}
         </div>
+    </div>
+    <div class="pure-g">
+        <div class="pure-u-1 text-center">
+            <h2><a href="{{path("new_board")}}">Start a New Board</a></h2>
+        </div>
+    </div>
+    <div class="pure-g">
+        {% for board in boards|sort((a, b) => a.abbreviation <=> b.abbreviation) %}
+            <div class="pure-u">
+                <p><a href="{{path("board", {abbreviation: board.abbreviation})}}">/{{board.abbreviation}}/ - {{board.name}}</a></p>
+            </div>
+        {% endfor %}
     </div>
 </div>
 

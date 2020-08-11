@@ -9,22 +9,25 @@ use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\String\Slugger\SluggerInterface;
 
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+
 use App\Entity\Board;
 use App\Entity\Topic;
 use App\Entity\Reply;
 
+use App\Form\BoardType;
 use App\Form\ReplyType;
 
 class BoardController extends AbstractController
 {
     /**
-     * @Route("/board/{name}", name="board")
+     * @Route("/board/{abbreviation}", name="board")
      */
-    public function index($name)
+    public function index($abbreviation)
     {
         $board = $this->getDoctrine()
             ->getRepository(Board::class)
-            ->findOneBy(["name" => $name]);
+            ->findOneBy(["abbreviation" => $abbreviation]);
     
         if (!$board) 
         {
@@ -42,13 +45,13 @@ class BoardController extends AbstractController
     }
 
     /**
-     * @Route("/board/{name}/topic/{id}", name="topic")
+     * @Route("/board/{abbreviation}/topic/{topic_id}", name="topic")
      */
-    public function topic($name, $id)
+    public function topic($abbreviation, $topic_id)
     {
         $board = $this->getDoctrine()
             ->getRepository(Board::class)
-            ->findOneBy(["name" => $name]);
+            ->findOneBy(["abbreviation" => $abbreviation]);
     
         if (!$board) 
         {
@@ -58,7 +61,7 @@ class BoardController extends AbstractController
         {
             $topic = $this->getDoctrine()
                 ->getRepository(Topic::class)
-                ->find($id);
+                ->find($topic_id);
 
             if (!$topic) 
             {
@@ -78,13 +81,13 @@ class BoardController extends AbstractController
     }
 
     /**
-     * @Route("/board/{name}/new-topic", name="new_topic")
+     * @Route("/board/{abbreviation}/new-topic", name="new_topic")
      */
-    public function newTopic(Request $request, SluggerInterface $slugger, $name)
+    public function newTopic(Request $request, SluggerInterface $slugger, $abbreviation)
     {
         $board = $this->getDoctrine()
             ->getRepository(Board::class)
-            ->findOneBy(["name" => $name]);
+            ->findOneBy(["abbreviation" => $abbreviation]);
 
         $reply = new Reply();
 
@@ -131,8 +134,8 @@ class BoardController extends AbstractController
             $manager->flush();
     
             return $this->redirectToRoute("topic", [
-                "name" => $name,
-                "id" => $topic->getId()
+                "abbreviation" => $abbreviation,
+                "topic_id" => $topic->getId()
             ]);
         }
 
@@ -143,13 +146,13 @@ class BoardController extends AbstractController
     }
 
     /**
-     * @Route("/board/{name}/topic/{topic_id}/new-reply/{reply_id}", name="new_reply")
+     * @Route("/board/{abbreviation}/topic/{topic_id}/new-reply/{reply_id}", name="new_reply")
      */
-    public function newReply(Request $request, SluggerInterface $slugger, $name, $topic_id, $reply_id = null)
+    public function newReply(Request $request, SluggerInterface $slugger, $abbreviation, $topic_id, $reply_id = null)
     {
         $board = $this->getDoctrine()
             ->getRepository(Board::class)
-            ->findOneBy(["name" => $name]);
+            ->findOneBy(["abbreviation" => $abbreviation]);
 
         $topic = $this->getDoctrine()
             ->getRepository(Topic::class)
@@ -203,8 +206,8 @@ class BoardController extends AbstractController
             $manager->flush();
     
             return $this->redirectToRoute("topic", [
-                "name" => $name,
-                "id" => $topic->getId()
+                "abbreviation" => $abbreviation,
+                "topic_id" => $topic->getId()
             ]);
         }
 
@@ -216,13 +219,14 @@ class BoardController extends AbstractController
     }
 
     /**
-     * @Route("/board/new", name="board_new")
+     * @Route("/new", name="new_board")
+     * @IsGranted("ROLE_ADMIN")
      */
-    public function new(Request $request)
+    public function newBoard(Request $request)
     {
         $board = new Board();
 
-        $form = $this->createForm(NewBoardType::class, $board);
+        $form = $this->createForm(BoardType::class, $board);
 
         $form->handleRequest($request);
 
@@ -234,11 +238,46 @@ class BoardController extends AbstractController
             $manager->persist($board);
             $manager->flush();
     
-            return $this->redirectToRoute("board");
+            return $this->redirectToRoute("board", [
+                "abbreviation" => $board->getAbbreviation()
+            ]);
         }
 
-        return $this->render("board/new.html.twig", [
-            "board_new" => $form->createView()
+        return $this->render("board/new_board.html.twig", [
+            "form" => $form->createView()
+        ]);
+    }
+
+    /**
+     * @Route("/board/{abbreviation}/topic/{topic_id}/delete-reply/{reply_id}", name="delete_reply")
+     */
+    public function deleteReply(Request $request, $abbreviation, $topic_id, $reply_id)
+    {
+        $board = $this->getDoctrine()
+            ->getRepository(Board::class)
+            ->findOneBy(["abbreviation" => $abbreviation]);
+
+        if (!$board) throw $this->createNotFoundException();
+
+        $topic = $this->getDoctrine()
+            ->getRepository(Topic::class)
+            ->find($topic_id);
+
+        if (!$topic) throw $this->createNotFoundException();
+
+        $reply = $this->getDoctrine()
+            ->getRepository(Reply::class)
+            ->find($reply_id);
+
+        if (!$reply) throw $this->createNotFoundException();
+
+        $manager = $this->getDoctrine()->getManager();
+        $manager->remove($reply);
+        $manager->flush();
+
+        return $this->redirectToRoute("topic", [
+            "abbreviation" => $abbreviation,
+            "topic_id" => $topic->getId()
         ]);
     }
 }

@@ -34,6 +34,11 @@ class Board
      */
     private $topics;
 
+    /**
+     * @ORM\Column(type="string", length=255, unique=true)
+     */
+    private $abbreviation;
+
     public function __construct()
     {
         $this->topics = new ArrayCollection();
@@ -95,6 +100,18 @@ class Board
                 $topic->setBoard(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getAbbreviation(): ?string
+    {
+        return $this->abbreviation;
+    }
+
+    public function setAbbreviation(string $abbreviation): self
+    {
+        $this->abbreviation = $abbreviation;
 
         return $this;
     }
