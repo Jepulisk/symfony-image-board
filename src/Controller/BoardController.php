@@ -21,7 +21,7 @@ use App\Form\ReplyType;
 class BoardController extends AbstractController
 {
     /**
-     * @Route("/board/{abbreviation}", name="board")
+     * @Route("/board/{abbreviation}", name="get_board")
      */
     public function index($abbreviation)
     {
@@ -45,7 +45,7 @@ class BoardController extends AbstractController
     }
 
     /**
-     * @Route("/board/{abbreviation}/topic/{topic_id}", name="topic")
+     * @Route("/board/{abbreviation}/topic/{topic_id}", name="get_topic")
      */
     public function topic($abbreviation, $topic_id)
     {
@@ -133,7 +133,7 @@ class BoardController extends AbstractController
             $manager->persist($reply);
             $manager->flush();
     
-            return $this->redirectToRoute("topic", [
+            return $this->redirectToRoute("get_topic", [
                 "abbreviation" => $abbreviation,
                 "topic_id" => $topic->getId()
             ]);
@@ -205,7 +205,7 @@ class BoardController extends AbstractController
             $manager->persist($reply);
             $manager->flush();
     
-            return $this->redirectToRoute("topic", [
+            return $this->redirectToRoute("get_topic", [
                 "abbreviation" => $abbreviation,
                 "topic_id" => $topic->getId()
             ]);
@@ -238,7 +238,7 @@ class BoardController extends AbstractController
             $manager->persist($board);
             $manager->flush();
     
-            return $this->redirectToRoute("board", [
+            return $this->redirectToRoute("get_board", [
                 "abbreviation" => $board->getAbbreviation()
             ]);
         }
@@ -275,7 +275,7 @@ class BoardController extends AbstractController
         $manager->remove($reply);
         $manager->flush();
 
-        return $this->redirectToRoute("topic", [
+        return $this->redirectToRoute("get_topic", [
             "abbreviation" => $abbreviation,
             "topic_id" => $topic->getId()
         ]);

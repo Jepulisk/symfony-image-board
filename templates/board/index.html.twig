@@ -19,9 +19,9 @@
         {% for topic in topics %}
             <div class="pure-u-1-2 pure-u-sm-1-3 pure-u-md-1-4 pure-u-lg-1-6 pure-u-xl-1-8">
                 {% if topic.replies.first.attachment %}
-                    <p><a href="{{path("topic", {abbreviation: board.abbreviation, topic_id: topic.id})}}"><img style="max-width: 100%; height: auto;" src="{{asset('attachments/' ~ topic.replies.first.attachment)}}" alt="{{topic.replies.first.attachment}}"></img></a></p>
+                    <p><a href="{{path("get_topic", {abbreviation: board.abbreviation, topic_id: topic.id})}}"><img style="max-width: 100%; height: auto;" src="{{asset('attachments/' ~ topic.replies.first.attachment)}}" alt="{{topic.replies.first.attachment}}"></img></a></p>
                 {% endif %}
-                <p><a href="{{path("topic", {abbreviation: board.abbreviation, topic_id: topic.id})}}">{{topic.replies.first.content}}</a></p>
+                <p><a href="{{path("get_topic", {abbreviation: board.abbreviation, topic_id: topic.id})}}">{{topic.replies.first.content}}</a></p>
             </div>
         {% endfor %}
     </div>
