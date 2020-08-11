@@ -45,6 +45,11 @@ class Reply
      */
     private $replies;
 
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $attachment;
+
     public function __construct()
     {
         $this->reply_to = new ArrayCollection();
@@ -142,6 +147,18 @@ class Reply
             $this->replies->removeElement($reply);
             $reply->removeReplyTo($this);
         }
+
+        return $this;
+    }
+
+    public function getAttachment(): ?string
+    {
+        return $this->attachment;
+    }
+
+    public function setAttachment(?string $attachment): self
+    {
+        $this->attachment = $attachment;
 
         return $this;
     }

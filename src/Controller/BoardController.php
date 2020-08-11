@@ -5,6 +5,9 @@ namespace App\Controller;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\String\Slugger\SluggerInterface;
 
 use App\Entity\Board;
 use App\Entity\Topic;
@@ -77,7 +80,7 @@ class BoardController extends AbstractController
     /**
      * @Route("/board/{name}/new-topic", name="new_topic")
      */
-    public function newTopic(Request $request, $name)
+    public function newTopic(Request $request, SluggerInterface $slugger, $name)
     {
         $board = $this->getDoctrine()
             ->getRepository(Board::class)
@@ -96,6 +99,30 @@ class BoardController extends AbstractController
             $topic->setTsCreated(new \DateTime());
     
             $reply->setTopic($topic);
+            
+            $attachment = $form->get("attachment")->getData();
+
+            if ($attachment) 
+            {
+                $originalFilename = pathinfo($attachment->getClientOriginalName(), PATHINFO_FILENAME);
+                $safeFilename = $slugger->slug($originalFilename);
+                $newFilename = $safeFilename."-".uniqid().".".$attachment->guessExtension();
+
+                try 
+                {
+                    $attachment->move(
+                        $this->getParameter("reply_attachments"),
+                        $newFilename
+                    );
+                } 
+                catch (FileException $e) 
+                {
+                    unset($e);
+                }
+
+                $reply->setAttachment($newFilename);
+            }
+
             $reply->setTsCreated(new \DateTime());
 
             $manager = $this->getDoctrine()->getManager();
@@ -118,7 +145,7 @@ class BoardController extends AbstractController
     /**
      * @Route("/board/{name}/topic/{topic_id}/new-reply/{reply_id}", name="new_reply")
      */
-    public function newReply(Request $request, $name, $topic_id, $reply_id = null)
+    public function newReply(Request $request, SluggerInterface $slugger, $name, $topic_id, $reply_id = null)
     {
         $board = $this->getDoctrine()
             ->getRepository(Board::class)
@@ -146,6 +173,29 @@ class BoardController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid())
         {
+            $attachment = $form->get("attachment")->getData();
+
+            if ($attachment) 
+            {
+                $originalFilename = pathinfo($attachment->getClientOriginalName(), PATHINFO_FILENAME);
+                $safeFilename = $slugger->slug($originalFilename);
+                $newFilename = $safeFilename."-".uniqid().".".$attachment->guessExtension();
+
+                try 
+                {
+                    $attachment->move(
+                        $this->getParameter("reply_attachments"),
+                        $newFilename
+                    );
+                } 
+                catch (FileException $e) 
+                {
+                    unset($e);
+                }
+
+                $reply->setAttachment($newFilename);
+            }
+
             $reply->setTsCreated(new \DateTime());
 
             $manager = $this->getDoctrine()->getManager();
