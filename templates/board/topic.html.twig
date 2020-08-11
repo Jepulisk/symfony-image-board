@@ -13,18 +13,13 @@
     <div class="pure-g">
         {% for reply in replies %}
             <div class="pure-u-1-1">
-                <div class="reply" style="background-color: brown; margin: 0 0.75rem 0.75rem 0.75rem; display: inline-block;" id="{{reply.id}}">
+                <div class="reply" id="{{reply.id}}">
                     <p>#{{reply.id}} {{reply.tsCreated|date("d.m.Y H:m:s")}} <a href="{{path("new_reply", {name: board.name, topic_id: topic.id, reply_id: reply.id})}}">Reply</a></p>
                     <p>{{reply.content}}</p>
                     <p>{% for reply_to in reply.replies %}<a href="#{{reply_to.id}}">#{{reply_to.id}}</a> {% endfor %}</p>
                 </div>
             </div>
         {% endfor %}
-    </div>
-    <div class="pure-g">
-        <div class="pure-u-1-1 text-center">
-            <p><a href="{{path("new_reply", {name: board.name, topic_id: topic.id})}}">New Reply</a></p>
-        </div>
     </div>
 </div>
 
