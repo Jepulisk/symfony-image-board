@@ -2,15 +2,15 @@
 
 namespace App\Entity;
 
-use App\Repository\TopicRepository;
+use App\Repository\ThreadRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Entity(repositoryClass=TopicRepository::class)
+ * @ORM\Entity(repositoryClass=ThreadRepository::class)
  */
-class Topic
+class Thread
 {
     /**
      * @ORM\Id()
@@ -25,18 +25,18 @@ class Topic
     private $ts_created;
 
     /**
-     * @ORM\OneToMany(targetEntity=Reply::class, mappedBy="topic", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity=Reply::class, mappedBy="thread", orphanRemoval=true)
      */
     private $replies;
 
     /**
-     * @ORM\ManyToOne(targetEntity=Board::class, inversedBy="topics")
+     * @ORM\ManyToOne(targetEntity=Board::class, inversedBy="threads")
      * @ORM\JoinColumn(nullable=false)
      */
     private $board;
 
     /**
-     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="topics")
+     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="threads")
      */
     private $user;
 
@@ -74,7 +74,7 @@ class Topic
     {
         if (!$this->replies->contains($reply)) {
             $this->replies[] = $reply;
-            $reply->setTopic($this);
+            $reply->setThread($this);
         }
 
         return $this;
@@ -85,8 +85,8 @@ class Topic
         if ($this->replies->contains($reply)) {
             $this->replies->removeElement($reply);
             // set the owning side to null (unless already changed)
-            if ($reply->getTopic() === $this) {
-                $reply->setTopic(null);
+            if ($reply->getThread() === $this) {
+                $reply->setThread(null);
             }
         }
 

@@ -30,9 +30,9 @@ class Board
     private $ts_created;
 
     /**
-     * @ORM\OneToMany(targetEntity=Topic::class, mappedBy="board")
+     * @ORM\OneToMany(targetEntity=Thread::class, mappedBy="board")
      */
-    private $topics;
+    private $threads;
 
     /**
      * @ORM\Column(type="string", length=255, unique=true)
@@ -41,7 +41,7 @@ class Board
 
     public function __construct()
     {
-        $this->topics = new ArrayCollection();
+        $this->threads = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -74,30 +74,30 @@ class Board
     }
 
     /**
-     * @return Collection|Topic[]
+     * @return Collection|Thread[]
      */
-    public function getTopics(): Collection
+    public function getThreads(): Collection
     {
-        return $this->topics;
+        return $this->threads;
     }
 
-    public function addTopic(Topic $topic): self
+    public function addThread(Thread $thread): self
     {
-        if (!$this->topics->contains($topic)) {
-            $this->topics[] = $topic;
-            $topic->setBoard($this);
+        if (!$this->threads->contains($thread)) {
+            $this->threads[] = $thread;
+            $thread->setBoard($this);
         }
 
         return $this;
     }
 
-    public function removeTopic(Topic $topic): self
+    public function removeThread(Thread $thread): self
     {
-        if ($this->topics->contains($topic)) {
-            $this->topics->removeElement($topic);
+        if ($this->threads->contains($thread)) {
+            $this->threads->removeElement($thread);
             // set the owning side to null (unless already changed)
-            if ($topic->getBoard() === $this) {
-                $topic->setBoard(null);
+            if ($thread->getBoard() === $this) {
+                $thread->setBoard(null);
             }
         }
 

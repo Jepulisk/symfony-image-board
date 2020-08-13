@@ -12,7 +12,7 @@ use Symfony\Component\String\Slugger\SluggerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 
 use App\Entity\Board;
-use App\Entity\Topic;
+use App\Entity\Thread;
 use App\Entity\Reply;
 
 use App\Form\BoardType;
@@ -35,19 +35,19 @@ class BoardController extends AbstractController
         }
         else
         {
-            $topics = $board->getTopics();
+            $threads = $board->getThreads();
         }
 
         return $this->render("board/index.html.twig", [
             "board" => $board,
-            "topics" => $topics
+            "threads" => $threads
         ]);
     }
 
     /**
-     * @Route("/board/{abbreviation}/topic/{topic_id}", name="get_topic")
+     * @Route("/board/{abbreviation}/thread/{thread_id}", name="get_thread")
      */
-    public function getTopic($abbreviation, $topic_id)
+    public function getThread($abbreviation, $thread_id)
     {
         $board = $this->getDoctrine()
             ->getRepository(Board::class)
@@ -59,31 +59,31 @@ class BoardController extends AbstractController
         }
         else
         {
-            $topic = $this->getDoctrine()
-                ->getRepository(Topic::class)
-                ->find($topic_id);
+            $thread = $this->getDoctrine()
+                ->getRepository(Thread::class)
+                ->find($thread_id);
 
-            if (!$topic) 
+            if (!$thread) 
             {
                 throw $this->createNotFoundException();
             }
             else
             {
-                $replies = $topic->getReplies();
+                $replies = $thread->getReplies();
             }
         }
 
-        return $this->render("board/topic.html.twig", [
+        return $this->render("board/thread.html.twig", [
             "board" => $board,
-            "topic" => $topic,
+            "thread" => $thread,
             "replies" => $replies
         ]);
     }
 
     /**
-     * @Route("/board/{abbreviation}/new-topic", name="new_topic")
+     * @Route("/board/{abbreviation}/new-thread", name="new_thread")
      */
-    public function newTopic(Request $request, SluggerInterface $slugger, $abbreviation)
+    public function newThread(Request $request, SluggerInterface $slugger, $abbreviation)
     {
         $board = $this->getDoctrine()
             ->getRepository(Board::class)
@@ -97,11 +97,11 @@ class BoardController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid())
         {
-            $topic = new Topic();
-            $topic->setBoard($board);
-            $topic->setTsCreated(new \DateTime());
+            $thread = new Thread();
+            $thread->setBoard($board);
+            $thread->setTsCreated(new \DateTime());
     
-            $reply->setTopic($topic);
+            $reply->setThread($thread);
             
             $attachment = $form->get("attachment")->getData();
 
@@ -132,42 +132,42 @@ class BoardController extends AbstractController
 
             if ($user)
             {
-                $topic->setUser($user);
+                $thread->setUser($user);
                 $reply->setUser($user);
             }
 
             $manager = $this->getDoctrine()->getManager();
-            $manager->persist($topic);
+            $manager->persist($thread);
             $manager->persist($reply);
             $manager->flush();
     
-            return $this->redirectToRoute("get_topic", [
+            return $this->redirectToRoute("get_thread", [
                 "abbreviation" => $abbreviation,
-                "topic_id" => $topic->getId()
+                "thread_id" => $thread->getId()
             ]);
         }
 
-        return $this->render("board/new_topic.html.twig", [
+        return $this->render("board/new_thread.html.twig", [
             "board" => $board,
             "form" => $form->createView()
         ]);
     }
 
     /**
-     * @Route("/board/{abbreviation}/topic/{topic_id}/new-reply/{reply_id}", name="new_reply")
+     * @Route("/board/{abbreviation}/thread/{thread_id}/new-reply/{reply_id}", name="new_reply")
      */
-    public function newReply(Request $request, SluggerInterface $slugger, $abbreviation, $topic_id, $reply_id = null)
+    public function newReply(Request $request, SluggerInterface $slugger, $abbreviation, $thread_id, $reply_id = null)
     {
         $board = $this->getDoctrine()
             ->getRepository(Board::class)
             ->findOneBy(["abbreviation" => $abbreviation]);
 
-        $topic = $this->getDoctrine()
-            ->getRepository(Topic::class)
-            ->find($topic_id);
+        $thread = $this->getDoctrine()
+            ->getRepository(Thread::class)
+            ->find($thread_id);
 
         $reply = new Reply();
-        $reply->setTopic($topic);
+        $reply->setThread($thread);
 
         if ($reply_id)
         {
@@ -220,15 +220,15 @@ class BoardController extends AbstractController
             $manager->persist($reply);
             $manager->flush();
     
-            return $this->redirectToRoute("get_topic", [
+            return $this->redirectToRoute("get_thread", [
                 "abbreviation" => $abbreviation,
-                "topic_id" => $topic_id
+                "thread_id" => $thread_id
             ]);
         }
 
         return $this->render("board/new_reply.html.twig", [
             "board" => $board,
-            "topic" => $topic,
+            "thread" => $thread,
             "form" => $form->createView()
         ]);
     }
@@ -264,9 +264,9 @@ class BoardController extends AbstractController
     }
 
     /**
-     * @Route("/board/{abbreviation}/topic/{topic_id}/delete-reply/{reply_id}", name="delete_reply")
+     * @Route("/board/{abbreviation}/thread/{thread_id}/delete-reply/{reply_id}", name="delete_reply")
      */
-    public function deleteReply(Request $request, $abbreviation, $topic_id, $reply_id)
+    public function deleteReply(Request $request, $abbreviation, $thread_id, $reply_id)
     {
         $board = $this->getDoctrine()
             ->getRepository(Board::class)
@@ -274,11 +274,11 @@ class BoardController extends AbstractController
 
         if (!$board) throw $this->createNotFoundException();
 
-        $topic = $this->getDoctrine()
-            ->getRepository(Topic::class)
-            ->find($topic_id);
+        $thread = $this->getDoctrine()
+            ->getRepository(Thread::class)
+            ->find($thread_id);
 
-        if (!$topic) throw $this->createNotFoundException();
+        if (!$thread) throw $this->createNotFoundException();
 
         $reply = $this->getDoctrine()
             ->getRepository(Reply::class)
@@ -290,15 +290,15 @@ class BoardController extends AbstractController
         $manager->remove($reply);
         $manager->flush();
 
-        if (sizeOf($topic->getReplies()) == 0)
+        if (sizeOf($thread->getReplies()) == 0)
         {
-            $manager->remove($topic);
+            $manager->remove($thread);
             $manager->flush();
         }
 
-        return $this->redirectToRoute("get_topic", [
+        return $this->redirectToRoute("get_thread", [
             "abbreviation" => $abbreviation,
-            "topic_id" => $topic_id
+            "thread_id" => $thread_id
         ]);
     }
 }

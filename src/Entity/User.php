@@ -43,14 +43,14 @@ class User implements UserInterface
     private $replies;
 
     /**
-     * @ORM\OneToMany(targetEntity=Topic::class, mappedBy="user")
+     * @ORM\OneToMany(targetEntity=Thread::class, mappedBy="user")
      */
-    private $topics;
+    private $threads;
 
     public function __construct()
     {
         $this->replies = new ArrayCollection();
-        $this->topics = new ArrayCollection();
+        $this->threads = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -163,30 +163,30 @@ class User implements UserInterface
     }
 
     /**
-     * @return Collection|Topic[]
+     * @return Collection|Thread[]
      */
-    public function getTopics(): Collection
+    public function getThreads(): Collection
     {
-        return $this->topics;
+        return $this->threads;
     }
 
-    public function addTopic(Topic $topic): self
+    public function addThread(Thread $thread): self
     {
-        if (!$this->topics->contains($topic)) {
-            $this->topics[] = $topic;
-            $topic->setUser($this);
+        if (!$this->threads->contains($thread)) {
+            $this->threads[] = $thread;
+            $thread->setUser($this);
         }
 
         return $this;
     }
 
-    public function removeTopic(Topic $topic): self
+    public function removeThread(Thread $thread): self
     {
-        if ($this->topics->contains($topic)) {
-            $this->topics->removeElement($topic);
+        if ($this->threads->contains($thread)) {
+            $this->threads->removeElement($thread);
             // set the owning side to null (unless already changed)
-            if ($topic->getUser() === $this) {
-                $topic->setUser(null);
+            if ($thread->getUser() === $this) {
+                $thread->setUser(null);
             }
         }
 

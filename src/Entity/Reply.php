@@ -30,10 +30,10 @@ class Reply
     private $ts_created;
 
     /**
-     * @ORM\ManyToOne(targetEntity=Topic::class, inversedBy="replies")
+     * @ORM\ManyToOne(targetEntity=Thread::class, inversedBy="replies")
      * @ORM\JoinColumn(nullable=false)
      */
-    private $topic;
+    private $thread;
 
     /**
      * @ORM\ManyToMany(targetEntity=Reply::class, inversedBy="replies")
@@ -90,14 +90,14 @@ class Reply
         return $this;
     }
 
-    public function getTopic(): ?Topic
+    public function getThread(): ?Thread
     {
-        return $this->topic;
+        return $this->thread;
     }
 
-    public function setTopic(?Topic $topic): self
+    public function setThread(?Thread $thread): self
     {
-        $this->topic = $topic;
+        $this->thread = $thread;
 
         return $this;
     }
