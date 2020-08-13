@@ -1,10 +1,15 @@
 {% extends "base.html.twig" %}
 
-{% block title %}/{{board.abbreviation}}/ - New Thread{% endblock %}
+{% block title %}/{{board.abbreviation}}/ - Start a New Thread{% endblock %}
 
 {% block body %}
 
 <div class="content">
+    <div class="pure-g">
+        <div class="pure-u-1">
+            <h1>/{{board.abbreviation}}/ - {{board.name}} - Start a New Thread</h1>
+        </div>
+    </div>
     <div class="pure-g">
         <div class="pure-u-1-1 text-center">
             {{form(form)}}
