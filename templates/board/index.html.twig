@@ -21,6 +21,7 @@
                 {% if topic.replies.first.attachment %}
                     <p><a href="{{path("get_topic", {abbreviation: board.abbreviation, topic_id: topic.id})}}"><img style="max-width: 100%; height: auto;" src="{{asset('attachments/' ~ topic.replies.first.attachment)}}" alt="{{topic.replies.first.attachment}}"></img></a></p>
                 {% endif %}
+                <p>Replies: {{topic.replies|length - 1}}</p>
                 <p><a href="{{path("get_topic", {abbreviation: board.abbreviation, topic_id: topic.id})}}">{{topic.replies.first.content}}</a></p>
             </div>
         {% endfor %}
