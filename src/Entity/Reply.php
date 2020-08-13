@@ -50,6 +50,11 @@ class Reply
      */
     private $attachment;
 
+    /**
+     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="replies")
+     */
+    private $user;
+
     public function __construct()
     {
         $this->reply_to = new ArrayCollection();
@@ -159,6 +164,18 @@ class Reply
     public function setAttachment(?string $attachment): self
     {
         $this->attachment = $attachment;
+
+        return $this;
+    }
+
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+
+    public function setUser(?User $user): self
+    {
+        $this->user = $user;
 
         return $this;
     }

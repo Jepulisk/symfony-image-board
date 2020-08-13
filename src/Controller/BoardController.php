@@ -23,7 +23,7 @@ class BoardController extends AbstractController
     /**
      * @Route("/board/{abbreviation}", name="get_board")
      */
-    public function index($abbreviation)
+    public function getBoard($abbreviation)
     {
         $board = $this->getDoctrine()
             ->getRepository(Board::class)
@@ -47,7 +47,7 @@ class BoardController extends AbstractController
     /**
      * @Route("/board/{abbreviation}/topic/{topic_id}", name="get_topic")
      */
-    public function topic($abbreviation, $topic_id)
+    public function getTopic($abbreviation, $topic_id)
     {
         $board = $this->getDoctrine()
             ->getRepository(Board::class)
@@ -128,6 +128,14 @@ class BoardController extends AbstractController
 
             $reply->setTsCreated(new \DateTime());
 
+            $user = $this->getUser();
+
+            if ($user)
+            {
+                $topic->setUser($user);
+                $reply->setUser($user);
+            }
+
             $manager = $this->getDoctrine()->getManager();
             $manager->persist($topic);
             $manager->persist($reply);
@@ -201,13 +209,20 @@ class BoardController extends AbstractController
 
             $reply->setTsCreated(new \DateTime());
 
+            $user = $this->getUser();
+
+            if ($user)
+            {
+                $reply->setUser($user);
+            }
+
             $manager = $this->getDoctrine()->getManager();
             $manager->persist($reply);
             $manager->flush();
     
             return $this->redirectToRoute("get_topic", [
                 "abbreviation" => $abbreviation,
-                "topic_id" => $topic->getId()
+                "topic_id" => $topic_id
             ]);
         }
 
@@ -219,7 +234,7 @@ class BoardController extends AbstractController
     }
 
     /**
-     * @Route("/new", name="new_board")
+     * @Route("/new-board", name="new_board")
      * @IsGranted("ROLE_ADMIN")
      */
     public function newBoard(Request $request)
@@ -275,9 +290,15 @@ class BoardController extends AbstractController
         $manager->remove($reply);
         $manager->flush();
 
+        if (sizeOf($topic->getReplies()) == 0)
+        {
+            $manager->remove($topic);
+            $manager->flush();
+        }
+
         return $this->redirectToRoute("get_topic", [
             "abbreviation" => $abbreviation,
-            "topic_id" => $topic->getId()
+            "topic_id" => $topic_id
         ]);
     }
 }

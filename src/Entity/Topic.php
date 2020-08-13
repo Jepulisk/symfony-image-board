@@ -35,6 +35,11 @@ class Topic
      */
     private $board;
 
+    /**
+     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="topics")
+     */
+    private $user;
+
     public function __construct()
     {
         $this->replies = new ArrayCollection();
@@ -96,6 +101,18 @@ class Topic
     public function setBoard(?Board $board): self
     {
         $this->board = $board;
+
+        return $this;
+    }
+
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+
+    public function setUser(?User $user): self
+    {
+        $this->user = $user;
 
         return $this;
     }
