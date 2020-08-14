@@ -26,7 +26,7 @@
                                     <p><img style="max-width: 100%; height: auto;" src="{{asset('attachments/' ~ thread.replies.first.attachment)}}" alt="{{thread.replies.first.attachment}}"></img></p>
                                 {% endif %}
                                 <p>Replies: {{thread.replies|length - 1}}</p>
-                                <p name="reply">{{thread.replies.first.content|slice(0, 100)}}</p>
+                                <p>{{thread.replies.first.content|slice(0, 100)}}</p>
                             </div>
                         </div>
                     </div>

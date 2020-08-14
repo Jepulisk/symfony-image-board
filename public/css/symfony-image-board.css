@@ -41,6 +41,7 @@ html, button, input, select, textarea, .pure-g [class *= "pure-u"] {
 h1, h2, h3, h4, p, label {
     color: #f8f8f2;
     margin: 0.5rem;
+    word-wrap: break-word;
 }
 
 a {
@@ -51,7 +52,6 @@ a {
 .thread {
     background-color: #44475a;
     margin: 0.25rem 0.25rem 0.25rem 0.25rem;
-    overflow: hidden;
 }
 
 .reply {
