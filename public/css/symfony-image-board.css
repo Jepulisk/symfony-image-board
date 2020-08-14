@@ -58,3 +58,10 @@ a {
     background-color: #44475a;
     margin: 0.25rem 0.25rem 0.25rem 0.25rem;
 }
+
+.thumbnail {
+    cursor: pointer;
+    height: 100px;
+    max-width: 100%;
+    object-fit: contain;
+}

@@ -4,7 +4,7 @@
 
 {% block body %}
 
-<div class="content" id="content">
+<div class="content">
     <div class="pure-g">
         <div class="pure-u-1">
             <h1>/{{board.abbreviation}}/ - {{board.name}}</h1>
@@ -12,27 +12,36 @@
     </div>
     <div class="pure-g">
         <div class="pure-u-1 text-center">
-            <h2><a href="{{path("new_thread", {abbreviation: board.abbreviation})}}">Start a New Thread</a></h2>
+            <h2><a href="javascript:;" onClick="newThread()">Start a New Thread</a></h2>
         </div>
     </div>
-    <div class="pure-g" id="threads">
-        {% for thread in threads|slice(0, 100)|sort((a, b) => b.replies.last.tsCreated <=> a.replies.last.tsCreated) %}
-            <div class="pure-u-1-2 pure-u-sm-1-4 pure-u-md-1-6 pure-u-lg-1-8 pure-u-xl-1-8">
-                <a href="{{path("get_thread", {abbreviation: board.abbreviation, thread_id: thread.id})}}">
-                    <div class="thread" id="{{thread.id}}">
-                        <div class="pure-g">
-                            <div class="pure-u-1">
-                                {% if thread.replies.first.attachment %}
-                                    <p><img style="max-width: 100%; height: auto;" src="{{asset('attachments/' ~ thread.replies.first.attachment)}}" alt="{{thread.replies.first.attachment}}"></img></p>
-                                {% endif %}
-                                <p>Replies: {{thread.replies|length - 1}}</p>
-                                <p>{{thread.replies.first.content|slice(0, 100)}}</p>
+    <div id="new_thread">
+        <div class="pure-g">
+            <div class="pure-u-1 text-center">
+                {{form(new_thread)}}
+            </div>
+        </div>
+    </div>
+    <div id="threads">
+        <div class="pure-g" id="threads">
+            {% for thread in threads|slice(0, 100)|sort((a, b) => b.replies.last.tsCreated <=> a.replies.last.tsCreated) %}
+                <div class="pure-u-1-2 pure-u-sm-1-4 pure-u-md-1-6 pure-u-lg-1-8 pure-u-xl-1-8">
+                    <a href="{{path("get_thread", {abbreviation: board.abbreviation, thread_id: thread.id})}}">
+                        <div class="thread" id="{{thread.id}}">
+                            <div class="pure-g">
+                                <div class="pure-u-1 text-center">
+                                    {% if thread.replies.first.attachment %}
+                                        <p><img class="thumbnail" src="{{asset('attachments/' ~ thread.replies.first.attachment)}}" alt="{{thread.replies.first.attachment}}"></img></p>
+                                    {% endif %}
+                                    <p>Replies: {{thread.replies|length - 1}}</p>
+                                    <p>{{thread.replies.first.content|slice(0, 100)}}</p>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </a>
-            </div>
-        {% endfor %}
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
     </div>
 </div>
 
@@ -50,10 +59,17 @@
             url: "{{path('get_board', {abbreviation: board.abbreviation})}}",
             success: function(data)
             {
-                data = $(data).filter("#content");
-                $("#content").html(data);
+                data = $(data).find("#threads");
+                $("#threads").html(data);
             }
         });
+    }
+
+    newThread();
+
+    function newThread()
+    {
+        $("#new_thread").toggle();
     }
 
 </script>

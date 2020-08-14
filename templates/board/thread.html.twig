@@ -19,34 +19,76 @@
             {% endif %}
         </div>
     </div>
-    <div class="pure-g">
-        {% for reply in replies %}
-            <div class="pure-u-1">
-                <div class="reply" id="{{reply.id}}">
-                    <div class="pure-g">
-                        <div class="pure-u-1">
-                            <p>#{{reply.id}} {{reply.tsCreated|date("d.m.Y H:i:s", false)}} <a href="{{path("new_reply", {abbreviation: board.abbreviation, thread_id: thread.id, reply_id: reply.id})}}">Reply</a> {% if not is_granted("ROLE_ADMIN") %}<a href="{{path("delete_reply", {abbreviation: board.abbreviation, thread_id: thread.id, reply_id: reply.id})}}">Delete</a>{% endif %} {% if reply.replyTo|length > 0 %}Replied to: {% for replyTo in reply.replyTo %}<a href="{{path("get_thread", {abbreviation: replyTo.thread.board.abbreviation, thread_id: replyTo.thread.id})}}#{{replyTo.id}}">#{{replyTo.id}}</a>{% endfor %}{% endif %}</p>
+    <div id="replies">
+        <div class="pure-g">
+            {% for reply in replies %}
+                <div class="pure-u-1">
+                    <div class="reply" id="{{reply.id}}">
+                        <div class="pure-g">
+                            <div class="pure-u-1">
+                                <p>#{{reply.id}} {{reply.tsCreated|date("d.m.Y H:i:s", false)}} <a href="{{path("new_reply", {abbreviation: board.abbreviation, thread_id: thread.id, reply_id: reply.id})}}">Reply</a> {% if not is_granted("ROLE_ADMIN") %}<a href="{{path("delete_reply", {abbreviation: board.abbreviation, thread_id: thread.id, reply_id: reply.id})}}">Delete</a>{% endif %} {% if reply.replyTo|length > 0 %}Replied to: {% for replyTo in reply.replyTo %}<a href="{{path("get_thread", {abbreviation: replyTo.thread.board.abbreviation, thread_id: replyTo.thread.id})}}#{{replyTo.id}}">#{{replyTo.id}}</a>{% endfor %}{% endif %}</p>
+                            </div>
+                            {% if reply.attachment %}
+                            <div class="pure-u text-center" style="">
+                                <p><img class="thumbnail" src="{{asset('attachments/' ~ reply.attachment)}}" alt="{{reply.attachment}}"></img></p>
+                            </div>
+                            {% endif %}
+                            {% if reply.content %}
+                            <div class="pure-u">
+                                <p>{{reply.content}}</p>
+                            </div>
+                            {% endif %}
+                            {% if reply.replies|length > 0 %}
+                            <div class="pure-u-1">
+                                <p>Replies: {% for replyTo in reply.replies %}<a href="{{path("get_thread", {abbreviation: replyTo.thread.board.abbreviation, thread_id: replyTo.thread.id})}}#{{replyTo.id}}">#{{replyTo.id}}</a> {% endfor %}</p>
+                            </div>
+                            {% endif %}
                         </div>
-                        {% if reply.attachment %}
-                        <div class="pure-u">
-                            <p><img style="width: 100px; height: auto;" src="{{asset('attachments/' ~ reply.attachment)}}" alt="{{reply.attachment}}"></img></p>
-                        </div>
-                        {% endif %}
-                        {% if reply.content %}
-                        <div class="pure-u">
-                            <p>{{reply.content}}</p>
-                        </div>
-                        {% endif %}
-                        {% if reply.replies|length > 0 %}
-                        <div class="pure-u-1">
-                            <p>Replies: {% for replyTo in reply.replies %}<a href="{{path("get_thread", {abbreviation: replyTo.thread.board.abbreviation, thread_id: replyTo.thread.id})}}#{{replyTo.id}}">#{{replyTo.id}}</a> {% endfor %}</p>
-                        </div>
-                        {% endif %}
                     </div>
                 </div>
-            </div>
-        {% endfor %}
+            {% endfor %}
+        </div>
     </div>
 </div>
+
+{% endblock %}
+
+{% block js %}
+
+<script>
+
+    setInterval(refreshReplies, 30000);
+
+    function refreshReplies()
+    {
+        $.ajax({
+            url: "{{path("get_thread", {abbreviation: board.abbreviation, thread_id: thread.id})}}",
+            success: function(data)
+            {
+                data = $(data).find("#replies");
+                $("#replies").html(data);
+                expandThumbnail();
+            }
+        });
+    }
+
+    expandThumbnail();
+
+    function expandThumbnail()
+    {
+        $(".thumbnail").click(function()
+        {
+            if ($(this).css("height") == "100px")
+            {
+                $(this).css("height","100%");
+            }
+            else
+            {
+                $(this).css("height", "100px");
+            }
+        });
+    }
+
+</script>
 
 {% endblock %}

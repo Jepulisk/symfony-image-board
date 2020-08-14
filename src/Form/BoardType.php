@@ -14,8 +14,12 @@ class BoardType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add("name")
-            ->add("abbreviation")
+            ->add("name", null, [
+                "required" => true
+            ])
+            ->add("abbreviation", null, [
+                "required" => true
+            ])
             ->add("save", SubmitType::class)
         ;
     }

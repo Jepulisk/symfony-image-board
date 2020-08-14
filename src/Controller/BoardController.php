@@ -23,7 +23,7 @@ class BoardController extends AbstractController
     /**
      * @Route("/board/{abbreviation}", name="get_board")
      */
-    public function getBoard($abbreviation)
+    public function getBoard(Request $request, SluggerInterface $slugger, $abbreviation)
     {
         $board = $this->getDoctrine()
             ->getRepository(Board::class)
@@ -36,12 +36,71 @@ class BoardController extends AbstractController
         else
         {
             $threads = $board->getThreads();
-        }
 
-        return $this->render("board/index.html.twig", [
-            "board" => $board,
-            "threads" => $threads
-        ]);
+            $reply = new Reply();
+
+            $form = $this->createForm(ReplyType::class, $reply);
+
+            $form->handleRequest($request);
+    
+            if ($form->isSubmitted() && $form->isValid())
+            {
+                $thread = new Thread();
+                $thread->setBoard($board);
+                $thread->setTsCreated(new \DateTime());
+        
+                $reply->setThread($thread);
+                
+                $attachment = $form->get("attachment")->getData();
+    
+                if ($attachment) 
+                {
+                    $originalFilename = pathinfo($attachment->getClientOriginalName(), PATHINFO_FILENAME);
+                    $safeFilename = $slugger->slug($originalFilename);
+                    $newFilename = $safeFilename."-".uniqid().".".$attachment->guessExtension();
+    
+                    try 
+                    {
+                        $attachment->move(
+                            $this->getParameter("reply_attachments"),
+                            $newFilename
+                        );
+                    } 
+                    catch (FileException $e) 
+                    {
+                        unset($e);
+                    }
+    
+                    $reply->setAttachment($newFilename);
+                }
+    
+                $reply->setTsCreated(new \DateTime());
+    
+                $user = $this->getUser();
+    
+                if ($user)
+                {
+                    $thread->setUser($user);
+                    $reply->setUser($user);
+                }
+    
+                $manager = $this->getDoctrine()->getManager();
+                $manager->persist($thread);
+                $manager->persist($reply);
+                $manager->flush();
+        
+                return $this->redirectToRoute("get_thread", [
+                    "abbreviation" => $abbreviation,
+                    "thread_id" => $thread->getId()
+                ]);
+            }
+    
+            return $this->render("board/index.html.twig", [
+                "board" => $board,
+                "threads" => $threads,
+                "new_thread" => $form->createView()
+            ]);
+        }
     }
 
     /**
