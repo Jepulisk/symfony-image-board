@@ -4,7 +4,7 @@
 
 {% block body %}
 
-<div class="content">
+<div class="content" id="content">
     <div class="pure-g">
         <div class="pure-u-1">
             <h1>/{{board.abbreviation}}/ - {{board.name}}</h1>
@@ -15,17 +15,47 @@
             <h2><a href="{{path("new_thread", {abbreviation: board.abbreviation})}}">Start a New Thread</a></h2>
         </div>
     </div>
-    <div class="pure-g">
-        {% for thread in threads %}
-            <div class="pure-u-1-2 pure-u-sm-1-3 pure-u-md-1-4 pure-u-lg-1-6 pure-u-xl-1-8">
-                {% if thread.replies.first.attachment %}
-                    <p><a href="{{path("get_thread", {abbreviation: board.abbreviation, thread_id: thread.id})}}"><img style="max-width: 100%; height: auto;" src="{{asset('attachments/' ~ thread.replies.first.attachment)}}" alt="{{thread.replies.first.attachment}}"></img></a></p>
-                {% endif %}
-                <p>Replies: {{thread.replies|length - 1}}</p>
-                <p><a href="{{path("get_thread", {abbreviation: board.abbreviation, thread_id: thread.id})}}">{{thread.replies.first.content}}</a></p>
+    <div class="pure-g" id="threads">
+        {% for thread in threads|slice(0, 100)|sort((a, b) => b.replies.last.tsCreated <=> a.replies.last.tsCreated) %}
+            <div class="pure-u-1-2 pure-u-sm-1-4 pure-u-md-1-6 pure-u-lg-1-8 pure-u-xl-1-8">
+                <a href="{{path("get_thread", {abbreviation: board.abbreviation, thread_id: thread.id})}}">
+                    <div class="thread" id="{{thread.id}}">
+                        <div class="pure-g">
+                            <div class="pure-u-1">
+                                {% if thread.replies.first.attachment %}
+                                    <p><img style="max-width: 100%; height: auto;" src="{{asset('attachments/' ~ thread.replies.first.attachment)}}" alt="{{thread.replies.first.attachment}}"></img></p>
+                                {% endif %}
+                                <p>Replies: {{thread.replies|length - 1}}</p>
+                                <p name="reply">{{thread.replies.first.content|slice(0, 100)}}</p>
+                            </div>
+                        </div>
+                    </div>
+                </a>
             </div>
         {% endfor %}
     </div>
 </div>
+
+{% endblock %}
+
+{% block js %}
+
+<script>
+
+    setInterval(refreshThreads, 30000);
+
+    function refreshThreads()
+    {
+        $.ajax({
+            url: "{{path('get_board', {abbreviation: board.abbreviation})}}",
+            success: function(data)
+            {
+                data = $(data).filter("#content");
+                $("#content").html(data);
+            }
+        });
+    }
+
+</script>
 
 {% endblock %}

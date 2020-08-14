@@ -12,6 +12,7 @@ nav {
 
 .content {
     flex: 1 0 auto;
+    margin: 0.25rem;
 }
 
 .banner {
@@ -39,7 +40,7 @@ html, button, input, select, textarea, .pure-g [class *= "pure-u"] {
 
 h1, h2, h3, h4, p, label {
     color: #f8f8f2;
-    margin: 0.75rem;
+    margin: 0.5rem;
 }
 
 a {
@@ -47,12 +48,13 @@ a {
     text-decoration-line: underline;
 }
 
-.topic {
+.thread {
     background-color: #44475a;
-    margin: 0 0.75rem 0.75rem 0.75rem;
+    margin: 0.25rem 0.25rem 0.25rem 0.25rem;
+    overflow: hidden;
 }
 
 .reply {
     background-color: #44475a;
-    margin: 0 0.75rem 0.75rem 0.75rem;
+    margin: 0.25rem 0.25rem 0.25rem 0.25rem;
 }

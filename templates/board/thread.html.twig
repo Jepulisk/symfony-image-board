@@ -12,7 +12,11 @@
     </div>
     <div class="pure-g">
         <div class="pure-u-1 text-center">
-            <h2><a href="{{path("new_reply", {abbreviation: board.abbreviation, thread_id: thread.id})}}">Reply to Thread</a></h2>
+            {% if thread.replies|length >= 255 %}
+                <h2>Thread is locked.</h2>
+            {% else %}
+                <h2><a href="{{path("new_reply", {abbreviation: board.abbreviation, thread_id: thread.id})}}">Reply to Thread</a></h2>
+            {% endif %}
         </div>
     </div>
     <div class="pure-g">
