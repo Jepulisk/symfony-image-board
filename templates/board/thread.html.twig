@@ -15,8 +15,15 @@
             {% if thread.replies|length >= 255 %}
                 <h2>Thread is locked.</h2>
             {% else %}
-                <h2><a href="{{path("new_reply", {abbreviation: board.abbreviation, thread_id: thread.id})}}">Reply to Thread</a></h2>
+                <h2><a href="javascript:;" onClick="newReply()">Reply to Thread</a></h2>
             {% endif %}
+        </div>
+    </div>
+    <div id="new_reply">
+        <div class="pure-g">
+            <div class="pure-u-1 text-center">
+                {{form(new_reply)}}
+            </div>
         </div>
     </div>
     <div id="replies">
@@ -78,15 +85,22 @@
     {
         $(".thumbnail").click(function()
         {
-            if ($(this).css("height") == "100px")
+            if ($(this).css("height") == "150px")
             {
-                $(this).css("height","100%");
+                $(this).css("height","auto");
             }
             else
             {
-                $(this).css("height", "100px");
+                $(this).css("height", "150px");
             }
         });
+    }
+
+    newReply();
+
+    function newReply()
+    {
+        $("#new_reply").toggle();
     }
 
 </script>

@@ -54,6 +54,10 @@ a {
     margin: 0.25rem 0.25rem 0.25rem 0.25rem;
 }
 
+.thread a {
+    text-decoration: none;
+}
+
 .reply {
     background-color: #44475a;
     margin: 0.25rem 0.25rem 0.25rem 0.25rem;
@@ -61,7 +65,7 @@ a {
 
 .thumbnail {
     cursor: pointer;
-    height: 100px;
+    height: 150px;
     max-width: 100%;
     object-fit: contain;
 }

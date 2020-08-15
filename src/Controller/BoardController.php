@@ -106,7 +106,7 @@ class BoardController extends AbstractController
     /**
      * @Route("/board/{abbreviation}/thread/{thread_id}", name="get_thread")
      */
-    public function getThread($abbreviation, $thread_id)
+    public function getThread(Request $request, SluggerInterface $slugger, $abbreviation, $thread_id)
     {
         $board = $this->getDoctrine()
             ->getRepository(Board::class)
@@ -129,14 +129,79 @@ class BoardController extends AbstractController
             else
             {
                 $replies = $thread->getReplies();
+
+                if (sizeOf($thread->getReplies()) >= 255) throw $this->createAccessDeniedException();
+
+                $reply = new Reply();
+                $reply->setThread($thread);
+    
+                /*
+                if ($reply_id)
+                {
+                    $reply_to = $this->getDoctrine()
+                        ->getRepository(Reply::class)
+                        ->find($reply_id);
+    
+                    $reply->addReplyTo($reply_to);
+                }
+                */
+    
+                $form = $this->createForm(ReplyType::class, $reply);
+    
+                $form->handleRequest($request);
+    
+                if ($form->isSubmitted() && $form->isValid())
+                {
+                    $attachment = $form->get("attachment")->getData();
+    
+                    if ($attachment) 
+                    {
+                        $originalFilename = pathinfo($attachment->getClientOriginalName(), PATHINFO_FILENAME);
+                        $safeFilename = $slugger->slug($originalFilename);
+                        $newFilename = $safeFilename."-".uniqid().".".$attachment->guessExtension();
+    
+                        try 
+                        {
+                            $attachment->move(
+                                $this->getParameter("reply_attachments"),
+                                $newFilename
+                            );
+                        } 
+                        catch (FileException $e) 
+                        {
+                            unset($e);
+                        }
+    
+                        $reply->setAttachment($newFilename);
+                    }
+    
+                    $reply->setTsCreated(new \DateTime());
+    
+                    $user = $this->getUser();
+    
+                    if ($user)
+                    {
+                        $reply->setUser($user);
+                    }
+    
+                    $manager = $this->getDoctrine()->getManager();
+                    $manager->persist($reply);
+                    $manager->flush();
+            
+                    return $this->redirectToRoute("get_thread", [
+                        "abbreviation" => $abbreviation,
+                        "thread_id" => $thread_id
+                    ]);
+                }
+
+                return $this->render("board/thread.html.twig", [
+                    "board" => $board,
+                    "thread" => $thread,
+                    "replies" => $replies,
+                    "new_reply" => $form->createView()
+                ]);
             }
         }
-
-        return $this->render("board/thread.html.twig", [
-            "board" => $board,
-            "thread" => $thread,
-            "replies" => $replies
-        ]);
     }
 
     /**
