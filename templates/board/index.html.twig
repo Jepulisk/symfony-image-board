@@ -23,7 +23,7 @@
         </div>
     </div>
     <div id="threads">
-        <div class="pure-g" id="threads">
+        <div class="pure-g">
             {% for thread in threads|slice(0, 100)|sort((a, b) => b.replies.last.tsCreated <=> a.replies.last.tsCreated) %}
                 <div class="pure-u-1-2 pure-u-sm-1-4 pure-u-md-1-6 pure-u-lg-1-8 pure-u-xl-1-8">
                     <a href="{{path("get_thread", {abbreviation: board.abbreviation, thread_id: thread.id})}}">
@@ -51,7 +51,7 @@
 
 <script>
 
-    setInterval(refreshThreads, 30000);
+    setInterval(refreshThreads, 3000);
 
     function refreshThreads()
     {
@@ -60,7 +60,7 @@
             success: function(data)
             {
                 data = $(data).find("#threads");
-                $("#threads").html(data);
+                $("#threads").html(data.html());
             }
         });
     }

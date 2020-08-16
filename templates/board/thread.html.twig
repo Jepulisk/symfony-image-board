@@ -10,22 +10,26 @@
             <h1>/{{board.abbreviation}}/ - {{board.name}} - #{{thread.id}}</h1>
         </div>
     </div>
-    <div class="pure-g">
-        <div class="pure-u-1 text-center">
-            {% if thread.replies|length >= 255 %}
-                <h2>Thread is locked.</h2>
-            {% else %}
-                <h2><a href="javascript:;" onClick="newReply()">Reply to Thread</a></h2>
-            {% endif %}
-        </div>
-    </div>
-    <div id="new_reply">
+    {% if thread.replies|length <= 255 %}
         <div class="pure-g">
             <div class="pure-u-1 text-center">
-                {{form(new_reply)}}
+                <h2><a href="javascript:;" onClick="newReply()">Reply to Thread</a></h2>
             </div>
         </div>
-    </div>
+        <div id="new_reply">
+            <div class="pure-g">
+                <div class="pure-u-1 text-center">
+                    {{form(new_reply)}}
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="pure-g">
+            <div class="pure-u-1 text-center">
+                <h2>Thread has reached its reply limit.</h2>
+            </div>
+        </div>
+    {% endif %}
     <div id="replies">
         <div class="pure-g">
             {% for reply in replies %}
@@ -33,7 +37,7 @@
                     <div class="reply" id="{{reply.id}}">
                         <div class="pure-g">
                             <div class="pure-u-1">
-                                <p>#{{reply.id}} {{reply.tsCreated|date("d.m.Y H:i:s", false)}} <a href="{{path("new_reply", {abbreviation: board.abbreviation, thread_id: thread.id, reply_id: reply.id})}}">Reply</a> {% if not is_granted("ROLE_ADMIN") %}<a href="{{path("delete_reply", {abbreviation: board.abbreviation, thread_id: thread.id, reply_id: reply.id})}}">Delete</a>{% endif %} {% if reply.replyTo|length > 0 %}Replied to: {% for replyTo in reply.replyTo %}<a href="{{path("get_thread", {abbreviation: replyTo.thread.board.abbreviation, thread_id: replyTo.thread.id})}}#{{replyTo.id}}">#{{replyTo.id}}</a>{% endfor %}{% endif %}</p>
+                                <p>#{{reply.id}} {{reply.tsCreated|date("d.m.Y H:i:s", false)}} <a href="{{path("new_reply", {abbreviation: board.abbreviation, thread_id: thread.id, reply_id: reply.id})}}">Reply</a> {% if is_granted("ROLE_ADMIN") %}<a href="{{path("delete_reply", {abbreviation: board.abbreviation, thread_id: thread.id, reply_id: reply.id})}}">Delete</a>{% endif %} {% if reply.replyTo|length > 0 %}Replied to: {% for replyTo in reply.replyTo %}<a href="{{path("get_thread", {abbreviation: replyTo.thread.board.abbreviation, thread_id: replyTo.thread.id})}}#{{replyTo.id}}">#{{replyTo.id}}</a>{% endfor %}{% endif %}</p>
                             </div>
                             {% if reply.attachment %}
                             <div class="pure-u text-center" style="">
@@ -64,7 +68,7 @@
 
 <script>
 
-    setInterval(refreshReplies, 30000);
+    setInterval(refreshReplies, 5000);
 
     function refreshReplies()
     {
@@ -73,7 +77,7 @@
             success: function(data)
             {
                 data = $(data).find("#replies");
-                $("#replies").html(data);
+                $("#replies").html(data.html());
                 expandThumbnail();
             }
         });

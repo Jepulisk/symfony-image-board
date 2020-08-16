@@ -135,7 +135,6 @@ class BoardController extends AbstractController
                 $reply = new Reply();
                 $reply->setThread($thread);
     
-                /*
                 if ($reply_id)
                 {
                     $reply_to = $this->getDoctrine()
@@ -144,7 +143,6 @@ class BoardController extends AbstractController
     
                     $reply->addReplyTo($reply_to);
                 }
-                */
     
                 $form = $this->createForm(ReplyType::class, $reply);
     
@@ -278,9 +276,9 @@ class BoardController extends AbstractController
     }
 
     /**
-     * @Route("/board/{abbreviation}/thread/{thread_id}/new-reply/{reply_id}", name="new_reply")
+     * @Route("/board/{abbreviation}/thread/{thread_id}/new-reply", name="new_reply")
      */
-    public function newReply(Request $request, SluggerInterface $slugger, $abbreviation, $thread_id, $reply_id = null)
+    public function newReply(Request $request, SluggerInterface $slugger, $abbreviation, $thread_id)
     {
         $board = $this->getDoctrine()
             ->getRepository(Board::class)
@@ -306,15 +304,6 @@ class BoardController extends AbstractController
 
                 $reply = new Reply();
                 $reply->setThread($thread);
-    
-                if ($reply_id)
-                {
-                    $reply_to = $this->getDoctrine()
-                        ->getRepository(Reply::class)
-                        ->find($reply_id);
-    
-                    $reply->addReplyTo($reply_to);
-                }
     
                 $form = $this->createForm(ReplyType::class, $reply);
     

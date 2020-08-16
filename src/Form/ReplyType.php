@@ -12,12 +12,16 @@ use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 
 use Symfony\Component\Validator\Constraints\File;
 
+use Gregwar\CaptchaBundle\Type\CaptchaType;
+
 class ReplyType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add("content")
+            ->add("content", null, [
+                "required" => true
+            ])
             ->add("attachment", FileType::class, [
                 "constraints" => [
                     new File([
@@ -29,7 +33,10 @@ class ReplyType extends AbstractType
                         ]
                     ])
                 ],
-                "required" => false
+                "required" => true
+            ])
+            ->add("captcha", CaptchaType::class, [
+                "disabled" => true
             ])
             ->add("save", SubmitType::class)
         ;
