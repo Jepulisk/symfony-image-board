@@ -40,6 +40,11 @@ class Thread
      */
     private $user;
 
+    /**
+     * @ORM\Column(type="boolean", nullable=true)
+     */
+    private $locked;
+
     public function __construct()
     {
         $this->replies = new ArrayCollection();
@@ -113,6 +118,18 @@ class Thread
     public function setUser(?User $user): self
     {
         $this->user = $user;
+
+        return $this;
+    }
+
+    public function getLocked(): ?bool
+    {
+        return $this->locked;
+    }
+
+    public function setLocked(?bool $locked): self
+    {
+        $this->locked = $locked;
 
         return $this;
     }

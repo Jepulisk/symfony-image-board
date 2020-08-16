@@ -15,7 +15,7 @@ class HomeController extends AbstractController
     /**
      * @Route("/home", name="home")
      */
-    public function index(Request $request)
+    public function home(Request $request)
     {
         $boards = $this->getDoctrine()
             ->getRepository(Board::class)
@@ -35,7 +35,7 @@ class HomeController extends AbstractController
             $manager->persist($board);
             $manager->flush();
         
-            return $this->redirectToRoute("get_board", [
+            return $this->redirectToRoute("board", [
                 "abbreviation" => $board->getAbbreviation()
             ]);
         }

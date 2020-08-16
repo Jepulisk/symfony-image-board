@@ -6,7 +6,7 @@
 
 <div class="content">
     <div class="pure-g">
-        <div class="pure-u-1">
+        <div class="pure-u-1 text-center">
             <h1>/{{board.abbreviation}}/ - {{board.name}}</h1>
         </div>
     </div>
@@ -15,7 +15,7 @@
             <h2><a href="javascript:;" onClick="newThread()">Start a New Thread</a></h2>
         </div>
     </div>
-    <div id="new_thread">
+    <div class="display-none" id="new_thread">
         <div class="pure-g">
             <div class="pure-u-1 text-center">
                 {{form(new_thread)}}
@@ -26,7 +26,7 @@
         <div class="pure-g">
             {% for thread in threads|slice(0, 100)|sort((a, b) => b.replies.last.tsCreated <=> a.replies.last.tsCreated) %}
                 <div class="pure-u-1-2 pure-u-sm-1-4 pure-u-md-1-6 pure-u-lg-1-8 pure-u-xl-1-8">
-                    <a href="{{path("get_thread", {abbreviation: board.abbreviation, thread_id: thread.id})}}">
+                    <a href="{{path("thread", {abbreviation: board.abbreviation, thread_id: thread.id})}}">
                         <div class="thread" id="{{thread.id}}">
                             <div class="pure-g">
                                 <div class="pure-u-1 text-center">
@@ -51,25 +51,23 @@
 
 <script>
 
-    setInterval(refreshThreads, 3000);
+    function newThread()
+    {
+        $("#new_thread").show();
+    }
+
+    setInterval(refreshThreads, 30000);
 
     function refreshThreads()
     {
         $.ajax({
-            url: "{{path('get_board', {abbreviation: board.abbreviation})}}",
+            url: "{{path('board', {abbreviation: board.abbreviation})}}",
             success: function(data)
             {
                 data = $(data).find("#threads");
                 $("#threads").html(data.html());
             }
         });
-    }
-
-    newThread();
-
-    function newThread()
-    {
-        $("#new_thread").toggle();
     }
 
 </script>

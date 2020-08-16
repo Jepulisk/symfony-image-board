@@ -21,197 +21,104 @@ use App\Form\ReplyType;
 class BoardController extends AbstractController
 {
     /**
-     * @Route("/board/{abbreviation}", name="get_board")
+     * @Route("/board/{abbreviation}", name="board")
      */
-    public function getBoard(Request $request, SluggerInterface $slugger, $abbreviation)
+    public function board(Request $request, SluggerInterface $slugger, $abbreviation)
     {
         $board = $this->getDoctrine()
             ->getRepository(Board::class)
             ->findOneBy(["abbreviation" => $abbreviation]);
     
-        if (!$board) 
-        {
-            throw $this->createNotFoundException();
-        }
-        else
-        {
-            $threads = $board->getThreads();
+        if (!$board) throw $this->createNotFoundException();
 
-            $reply = new Reply();
-
-            $form = $this->createForm(ReplyType::class, $reply);
-
-            $form->handleRequest($request);
-    
-            if ($form->isSubmitted() && $form->isValid())
-            {
-                $thread = new Thread();
-                $thread->setBoard($board);
-                $thread->setTsCreated(new \DateTime());
-        
-                $reply->setThread($thread);
-                
-                $attachment = $form->get("attachment")->getData();
-    
-                if ($attachment) 
-                {
-                    $originalFilename = pathinfo($attachment->getClientOriginalName(), PATHINFO_FILENAME);
-                    $safeFilename = $slugger->slug($originalFilename);
-                    $newFilename = $safeFilename."-".uniqid().".".$attachment->guessExtension();
-    
-                    try 
-                    {
-                        $attachment->move(
-                            $this->getParameter("reply_attachments"),
-                            $newFilename
-                        );
-                    } 
-                    catch (FileException $e) 
-                    {
-                        unset($e);
-                    }
-    
-                    $reply->setAttachment($newFilename);
-                }
-    
-                $reply->setTsCreated(new \DateTime());
-    
-                $user = $this->getUser();
-    
-                if ($user)
-                {
-                    $thread->setUser($user);
-                    $reply->setUser($user);
-                }
-    
-                $manager = $this->getDoctrine()->getManager();
-                $manager->persist($thread);
-                $manager->persist($reply);
-                $manager->flush();
-        
-                return $this->redirectToRoute("get_thread", [
-                    "abbreviation" => $abbreviation,
-                    "thread_id" => $thread->getId()
-                ]);
-            }
-    
-            return $this->render("board/index.html.twig", [
-                "board" => $board,
-                "threads" => $threads,
-                "new_thread" => $form->createView()
-            ]);
-        }
-    }
-
-    /**
-     * @Route("/board/{abbreviation}/thread/{thread_id}", name="get_thread")
-     */
-    public function getThread(Request $request, SluggerInterface $slugger, $abbreviation, $thread_id)
-    {
-        $board = $this->getDoctrine()
-            ->getRepository(Board::class)
-            ->findOneBy(["abbreviation" => $abbreviation]);
-    
-        if (!$board) 
-        {
-            throw $this->createNotFoundException();
-        }
-        else
-        {
-            $thread = $this->getDoctrine()
-                ->getRepository(Thread::class)
-                ->find($thread_id);
-
-            if (!$thread) 
-            {
-                throw $this->createNotFoundException();
-            }
-            else
-            {
-                $replies = $thread->getReplies();
-
-                if (sizeOf($thread->getReplies()) >= 255) throw $this->createAccessDeniedException();
-
-                $reply = new Reply();
-                $reply->setThread($thread);
-    
-                if ($reply_id)
-                {
-                    $reply_to = $this->getDoctrine()
-                        ->getRepository(Reply::class)
-                        ->find($reply_id);
-    
-                    $reply->addReplyTo($reply_to);
-                }
-    
-                $form = $this->createForm(ReplyType::class, $reply);
-    
-                $form->handleRequest($request);
-    
-                if ($form->isSubmitted() && $form->isValid())
-                {
-                    $attachment = $form->get("attachment")->getData();
-    
-                    if ($attachment) 
-                    {
-                        $originalFilename = pathinfo($attachment->getClientOriginalName(), PATHINFO_FILENAME);
-                        $safeFilename = $slugger->slug($originalFilename);
-                        $newFilename = $safeFilename."-".uniqid().".".$attachment->guessExtension();
-    
-                        try 
-                        {
-                            $attachment->move(
-                                $this->getParameter("reply_attachments"),
-                                $newFilename
-                            );
-                        } 
-                        catch (FileException $e) 
-                        {
-                            unset($e);
-                        }
-    
-                        $reply->setAttachment($newFilename);
-                    }
-    
-                    $reply->setTsCreated(new \DateTime());
-    
-                    $user = $this->getUser();
-    
-                    if ($user)
-                    {
-                        $reply->setUser($user);
-                    }
-    
-                    $manager = $this->getDoctrine()->getManager();
-                    $manager->persist($reply);
-                    $manager->flush();
-            
-                    return $this->redirectToRoute("get_thread", [
-                        "abbreviation" => $abbreviation,
-                        "thread_id" => $thread_id
-                    ]);
-                }
-
-                return $this->render("board/thread.html.twig", [
-                    "board" => $board,
-                    "thread" => $thread,
-                    "replies" => $replies,
-                    "new_reply" => $form->createView()
-                ]);
-            }
-        }
-    }
-
-    /**
-     * @Route("/board/{abbreviation}/new-thread", name="new_thread")
-     */
-    public function newThread(Request $request, SluggerInterface $slugger, $abbreviation)
-    {
-        $board = $this->getDoctrine()
-            ->getRepository(Board::class)
-            ->findOneBy(["abbreviation" => $abbreviation]);
+        $threads = $board->getThreads();
 
         $reply = new Reply();
+
+        $form = $this->createForm(ReplyType::class, $reply);
+
+        $form->handleRequest($request);
+    
+        if ($form->isSubmitted() && $form->isValid())
+        {
+            $thread = new Thread();
+            $thread->setBoard($board);
+            $thread->setTsCreated(new \DateTime());
+            
+            $reply->setThread($thread);
+                
+            $attachment = $form->get("attachment")->getData();
+    
+            if ($attachment) 
+            {
+                $originalFilename = pathinfo($attachment->getClientOriginalName(), PATHINFO_FILENAME);
+                $safeFilename = $slugger->slug($originalFilename);
+                $newFilename = $safeFilename."-".uniqid().".".$attachment->guessExtension();
+    
+                try 
+                {
+                    $attachment->move(
+                        $this->getParameter("reply_attachments"),
+                        $newFilename
+                    );
+                } 
+                catch (FileException $e) 
+                {
+                    unset($e);
+                }
+    
+                $reply->setAttachment($newFilename);
+            }
+    
+            $reply->setTsCreated(new \DateTime());
+    
+            $user = $this->getUser();
+    
+            if ($user)
+            {
+                $thread->setUser($user);
+                $reply->setUser($user);
+            }
+    
+            $manager = $this->getDoctrine()->getManager();
+            $manager->persist($thread);
+            $manager->persist($reply);
+            $manager->flush();
+        
+            return $this->redirectToRoute("thread", [
+                "abbreviation" => $abbreviation,
+                "thread_id" => $thread->getId()
+            ]);
+        }
+    
+        return $this->render("board/index.html.twig", [
+            "board" => $board,
+            "threads" => $threads,
+            "new_thread" => $form->createView()
+        ]);
+    }
+
+    /**
+     * @Route("/board/{abbreviation}/thread/{thread_id}", name="thread")
+     */
+    public function thread(Request $request, SluggerInterface $slugger, $abbreviation, $thread_id)
+    {
+        $board = $this->getDoctrine()
+            ->getRepository(Board::class)
+            ->findOneBy(["abbreviation" => $abbreviation]);
+    
+        if (!$board) throw $this->createNotFoundException();
+
+        $thread = $this->getDoctrine()
+            ->getRepository(Thread::class)
+            ->find($thread_id);
+
+        if (!$thread) throw $this->createNotFoundException();
+
+        $replies = $thread->getReplies();
+
+        $reply = new Reply();
+        $reply->setThread($thread);
 
         $form = $this->createForm(ReplyType::class, $reply);
 
@@ -219,12 +126,6 @@ class BoardController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid())
         {
-            $thread = new Thread();
-            $thread->setBoard($board);
-            $thread->setTsCreated(new \DateTime());
-    
-            $reply->setThread($thread);
-            
             $attachment = $form->get("attachment")->getData();
 
             if ($attachment) 
@@ -248,125 +149,61 @@ class BoardController extends AbstractController
                 $reply->setAttachment($newFilename);
             }
 
-            $reply->setTsCreated(new \DateTime());
+            $content = $reply->getContent();
+
+            preg_match_all("/(^|\s)#(\d+)(\s|$)/", $content, $replies_to_id);
+
+            foreach ($replies_to_id[0] as $reply_to_id)
+            {
+                $reply_to_id = trim($reply_to_id);
+                $reply_to_id = str_replace("#", "", $reply_to_id);
+
+                $reply_to = $this->getDoctrine()
+                    ->getRepository(Reply::class)
+                    ->find($reply_to_id);
+                
+                $reply->addReplyTo($reply_to);
+            }
 
             $user = $this->getUser();
 
             if ($user)
             {
-                $thread->setUser($user);
                 $reply->setUser($user);
             }
 
+            $reply->setTsCreated(new \DateTime());
+
             $manager = $this->getDoctrine()->getManager();
-            $manager->persist($thread);
             $manager->persist($reply);
+
+            if (sizeOf($thread->getReplies()) == 15)
+            {
+                $thread->setLocked(true);
+                $manager->persist($thread);
+            }
+
             $manager->flush();
     
-            return $this->redirectToRoute("get_thread", [
+            return $this->redirectToRoute("thread", [
                 "abbreviation" => $abbreviation,
-                "thread_id" => $thread->getId()
+                "thread_id" => $thread_id
             ]);
         }
 
-        return $this->render("board/new_thread.html.twig", [
+        return $this->render("board/thread.html.twig", [
             "board" => $board,
-            "form" => $form->createView()
+            "thread" => $thread,
+            "replies" => $replies,
+            "new_reply" => $form->createView()
         ]);
-    }
-
-    /**
-     * @Route("/board/{abbreviation}/thread/{thread_id}/new-reply", name="new_reply")
-     */
-    public function newReply(Request $request, SluggerInterface $slugger, $abbreviation, $thread_id)
-    {
-        $board = $this->getDoctrine()
-            ->getRepository(Board::class)
-            ->findOneBy(["abbreviation" => $abbreviation]);
-
-        if (!$board) 
-        {
-            throw $this->createNotFoundException();
-        }
-        else
-        {
-            $thread = $this->getDoctrine()
-            ->getRepository(Thread::class)
-            ->find($thread_id);
-
-            if (!$thread) 
-            {
-                throw $this->createNotFoundException();
-            }
-            else
-            {
-                if (sizeOf($thread->getReplies()) >= 255) throw $this->createAccessDeniedException();
-
-                $reply = new Reply();
-                $reply->setThread($thread);
-    
-                $form = $this->createForm(ReplyType::class, $reply);
-    
-                $form->handleRequest($request);
-    
-                if ($form->isSubmitted() && $form->isValid())
-                {
-                    $attachment = $form->get("attachment")->getData();
-    
-                    if ($attachment) 
-                    {
-                        $originalFilename = pathinfo($attachment->getClientOriginalName(), PATHINFO_FILENAME);
-                        $safeFilename = $slugger->slug($originalFilename);
-                        $newFilename = $safeFilename."-".uniqid().".".$attachment->guessExtension();
-    
-                        try 
-                        {
-                            $attachment->move(
-                                $this->getParameter("reply_attachments"),
-                                $newFilename
-                            );
-                        } 
-                        catch (FileException $e) 
-                        {
-                            unset($e);
-                        }
-    
-                        $reply->setAttachment($newFilename);
-                    }
-    
-                    $reply->setTsCreated(new \DateTime());
-    
-                    $user = $this->getUser();
-    
-                    if ($user)
-                    {
-                        $reply->setUser($user);
-                    }
-    
-                    $manager = $this->getDoctrine()->getManager();
-                    $manager->persist($reply);
-                    $manager->flush();
-            
-                    return $this->redirectToRoute("get_thread", [
-                        "abbreviation" => $abbreviation,
-                        "thread_id" => $thread_id
-                    ]);
-                }
-    
-                return $this->render("board/new_reply.html.twig", [
-                    "board" => $board,
-                    "thread" => $thread,
-                    "form" => $form->createView()
-                ]);
-            }
-        }
     }
 
     /**
      * @Route("/new-board", name="new_board")
      * @IsGranted("ROLE_ADMIN")
      */
-    public function newBoard(Request $request)
+    public function new(Request $request)
     {
         $board = new Board();
 
@@ -382,33 +219,22 @@ class BoardController extends AbstractController
             $manager->persist($board);
             $manager->flush();
     
-            return $this->redirectToRoute("get_board", [
+            return $this->redirectToRoute("board", [
                 "abbreviation" => $board->getAbbreviation()
             ]);
         }
 
         return $this->render("board/new_board.html.twig", [
-            "form" => $form->createView()
+            "new_board" => $form->createView()
         ]);
     }
 
     /**
-     * @Route("/board/{abbreviation}/thread/{thread_id}/delete-reply/{reply_id}", name="delete_reply")
+     * @Route("/reply/{reply_id}/delete", name="delete_reply")
+     * @IsGranted("ROLE_ADMIN")
      */
-    public function deleteReply(Request $request, $abbreviation, $thread_id, $reply_id)
+    public function delete(Request $request, $reply_id)
     {
-        $board = $this->getDoctrine()
-            ->getRepository(Board::class)
-            ->findOneBy(["abbreviation" => $abbreviation]);
-
-        if (!$board) throw $this->createNotFoundException();
-
-        $thread = $this->getDoctrine()
-            ->getRepository(Thread::class)
-            ->find($thread_id);
-
-        if (!$thread) throw $this->createNotFoundException();
-
         $reply = $this->getDoctrine()
             ->getRepository(Reply::class)
             ->find($reply_id);
@@ -416,18 +242,17 @@ class BoardController extends AbstractController
         if (!$reply) throw $this->createNotFoundException();
 
         $manager = $this->getDoctrine()->getManager();
+
+        $thread = $reply->getThread();
+
+        if (sizeOf($thread->getReplies()) == 1)
+        {
+            $manager->remove($thread);
+        }
+
         $manager->remove($reply);
         $manager->flush();
 
-        if (sizeOf($thread->getReplies()) == 0)
-        {
-            $manager->remove($thread);
-            $manager->flush();
-        }
-
-        return $this->redirectToRoute("get_thread", [
-            "abbreviation" => $abbreviation,
-            "thread_id" => $thread_id
-        ]);
+        return $this->redirect($request->server->get("HTTP_REFERER"));
     }
 }

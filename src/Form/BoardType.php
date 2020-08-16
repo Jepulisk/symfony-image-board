@@ -9,20 +9,13 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 
-use Gregwar\CaptchaBundle\Type\CaptchaType;
-
 class BoardType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add("name", null, [
-                "required" => true
-            ])
-            ->add("abbreviation", null, [
-                "required" => true
-            ])
-            ->add("captcha", CaptchaType::class)
+            ->add("name")
+            ->add("abbreviation")
             ->add("save", SubmitType::class)
         ;
     }
