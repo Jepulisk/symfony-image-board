@@ -41,19 +41,19 @@
                                 </p>
                             </div>
                             {% if reply.attachment %}
-                            <div class="pure-u text-center" style="">
-                                <p><img class="thumbnail" src="{{asset('attachments/' ~ reply.attachment)}}" alt="{{reply.attachment}}"></img></p>
-                            </div>
+                                <div class="pure-u text-center" style="">
+                                    <p><img class="thumbnail" src="{{asset('attachments/' ~ reply.attachment)}}" alt="{{reply.attachment}}"></img></p>
+                                </div>
                             {% endif %}
                             {% if reply.content %}
-                            <div class="pure-u">
-                                <p>{{reply.content}}</p>
-                            </div>
+                                <div class="pure-u">
+                                    <p class="reply-content">{{reply.content}}</p>
+                                </div>
                             {% endif %}
                             {% if reply.replies|length > 0 %}
-                            <div class="pure-u-1">
-                                <p>Replies: {% for replyTo in reply.replies %}<a href="{{path("thread", {abbreviation: replyTo.thread.board.abbreviation, thread_id: replyTo.thread.id})}}#{{replyTo.id}}">#{{replyTo.id}}</a> {% endfor %}</p>
-                            </div>
+                                <div class="pure-u-1">
+                                    <p>Replies: {% for replyTo in reply.replies %}<a href="{{path('thread', {abbreviation: replyTo.thread.board.abbreviation, thread_id: replyTo.thread.id})}}#{{replyTo.id}}">#{{replyTo.id}}</a> {% endfor %}</p>
+                                </div>
                             {% endif %}
                         </div>
                     </div>
@@ -74,6 +74,8 @@
         if (reply_id)
         {
             $("#reply_content").val($("#reply_content").val() + "#" + reply_id + "\n");
+            $(location).attr("href", "#new_reply");
+            $("#reply_content").focus();
         }
 
         $("#new_reply").show();
@@ -108,6 +110,24 @@
             {
                 $(this).css("height", "150px");
             }
+        });
+    }
+
+    replyContentLinks();
+
+    function replyContentLinks()
+    {
+        $(".reply-content").each(function()
+        {
+            var reply_content = $(this);
+            var reply_to_ids = reply_content.html().match(/(^|\s)#(\d+)(\s|\n|\r|$)/gm);
+            $.each(reply_to_ids, function(index, value)
+            {
+                value = value.replace("#", "");
+                value = value.trim();
+                console.log(value);
+                reply_content.html(reply_content.html().replace("#" + value, "<a href='#" + value +"'>" + "#" + value + "</a>"));
+            });
         });
     }
 

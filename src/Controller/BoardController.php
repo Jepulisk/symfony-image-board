@@ -151,9 +151,9 @@ class BoardController extends AbstractController
 
             $content = $reply->getContent();
 
-            preg_match_all("/(^|\s)#(\d+)(\s|$)/", $content, $replies_to_id);
+            preg_match_all("/(^|\s)#(\d+)(\s|\n|\r|$)/m", $content, $reply_to_ids);
 
-            foreach ($replies_to_id[0] as $reply_to_id)
+            foreach ($reply_to_ids[0] as $reply_to_id)
             {
                 $reply_to_id = trim($reply_to_id);
                 $reply_to_id = str_replace("#", "", $reply_to_id);
@@ -162,7 +162,7 @@ class BoardController extends AbstractController
                     ->getRepository(Reply::class)
                     ->find($reply_to_id);
                 
-                $reply->addReplyTo($reply_to);
+                if ($reply_to) $reply->addReplyTo($reply_to);
             }
 
             $user = $this->getUser();
