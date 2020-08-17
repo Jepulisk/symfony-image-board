@@ -38,9 +38,9 @@ h1, h2, h3, h4, p {
 
 form {
     background-color: olive;
+    display: inline-flex;
     margin: 0.25rem;
     text-align: left;
-    width: max-content;
 }
 
 label {
